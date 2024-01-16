@@ -11,6 +11,4 @@ Used Moq for mocking unit tests
 
 Mocked xUnit tests added, give the time more unit tests can be added to run the tests as part of the build CI/CD pipepline
 
-In memory caching is used but for a production app, Redis Cache would be a better choice
-
 Retry policies would be implemented for production apps

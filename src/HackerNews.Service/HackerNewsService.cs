@@ -1,7 +1,6 @@
 ﻿using HackerNews.Http;
 using HackerNews.Models;
 using HackerNews.Serialize;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace HackerNews.Service
@@ -9,15 +8,13 @@ namespace HackerNews.Service
     public class HackerNewsService: IHackerNewsService
     {
         private readonly IConfiguration _configuration;
-        private IMemoryCache _cache;
         private ISerializer _serializer;
         private IHttpService _httpService;
 
-        public HackerNewsService(IConfiguration configuration, IMemoryCache cache, 
+        public HackerNewsService(IConfiguration configuration,
             ISerializer serializer, IHttpService httpService)
         {
             _configuration = configuration;
-            _cache = cache;
             _serializer = serializer;
             _httpService = httpService;
         }
@@ -48,20 +45,14 @@ namespace HackerNews.Service
 
         public async Task<StoryResponseModel> GetBestStoryAsync(int storyId)
         {
-            var bestStory = await _cache.GetOrCreateAsync(storyId, async cacheEntry =>
+            var apiUrl = GetConfigValue("HackerNews:BestStoryApi");
+            if (string.IsNullOrWhiteSpace(apiUrl))
             {
-                var storyResponseModel = new StoryResponseModel();
-                var apiUrl = GetConfigValue("HackerNews:BestStoryApi");
-                if (string.IsNullOrWhiteSpace(apiUrl))
-                {
-                    throw new ArgumentNullException($"HackerNews:BestStoryApi url is empty string: {nameof(apiUrl)}");
-                }
-                var bestStoryApi = string.Format(apiUrl, storyId);
-                var httpResponseMessage = await _httpService.GetAsync(bestStoryApi);
-                return _serializer.Deserialize<StoryResponseModel>(httpResponseMessage);
-            });
-
-            return bestStory ?? new StoryResponseModel();
+                throw new ArgumentNullException($"HackerNews:BestStoryApi url is empty string: {nameof(apiUrl)}");
+            }
+            var bestStoryApi = string.Format(apiUrl, storyId);
+            var httpResponseMessage = await _httpService.GetAsync(bestStoryApi);
+            return _serializer.Deserialize<StoryResponseModel>(httpResponseMessage);
         }
 
         public string GetConfigValue(string key)

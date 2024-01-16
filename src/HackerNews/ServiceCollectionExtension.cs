@@ -19,8 +19,7 @@ namespace HackerNews
             services.AddScoped<ISerializer, Serializer>();
             services.AddScoped(typeof(IRequest<List<StoryResponseModel>>), typeof(StoryRequestModel));
             services.AddScoped(typeof(IRequestHandler<StoryRequestModel, List<StoryResponseModel>>), typeof(BestStoryHandler));
-            services.AddHttpClient<HttpService>();
-            services.AddMemoryCache();         
+            services.AddHttpClient<HttpService>();     
 
             Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
