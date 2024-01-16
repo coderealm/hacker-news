@@ -6,5 +6,7 @@ namespace HackerNews.Service
     {
         Task<List<StoryResponseModel>> GetBestStoriesAsync(int numberOfStories);
         Task<StoryResponseModel> GetBestStoryAsync(int storyId);
+        string GetConfigValue(string key);
+        Task<List<int>> GetStoryIdsAsync(int numberOfStories);
     }
 }

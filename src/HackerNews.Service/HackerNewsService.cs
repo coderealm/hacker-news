@@ -24,15 +24,8 @@ namespace HackerNews.Service
 
         public async Task<List<StoryResponseModel>> GetBestStoriesAsync(int numberOfStories)
         {
-            var bestStoriesIdsApiUrl = _configuration["HackerNews:BestStoriesIdsApi"];
-            if (string.IsNullOrWhiteSpace(bestStoriesIdsApiUrl))
-            {
-                 throw new ArgumentNullException($"HackerNews:BestStoriesIdsApi url is empty string: {nameof(bestStoriesIdsApiUrl)}");
-            }
-            var httpResponseMessage = await _httpService.GetAsync(bestStoriesIdsApiUrl);
-            var storyIds = _serializer.Deserialize<List<int>>(httpResponseMessage);
-            var storyResponseModel = storyIds?.Take(numberOfStories)?.Select(GetBestStoryAsync);
-
+            var storyIds = await GetStoryIdsAsync(numberOfStories);
+            var storyResponseModel = storyIds.Select(GetBestStoryAsync);
             var storyResponseModels = new List<StoryResponseModel>();
             if (storyResponseModel == null)
             {
@@ -42,12 +35,23 @@ namespace HackerNews.Service
             return storyResponseModels;
         }
 
+        public async Task<List<int>> GetStoryIdsAsync(int numberOfStories)
+        {
+            var bestStoriesIdsApiUrl = GetConfigValue("HackerNews:BestStoriesIdsApi");
+            if (string.IsNullOrWhiteSpace(bestStoriesIdsApiUrl))
+            {
+                throw new ArgumentNullException($"HackerNews:BestStoriesIdsApi url is empty string: {nameof(bestStoriesIdsApiUrl)}");
+            }
+            var httpResponseMessage = await _httpService.GetAsync(bestStoriesIdsApiUrl);
+            return _serializer.Deserialize<List<int>>(httpResponseMessage).Take(numberOfStories).ToList();
+        }
+
         public async Task<StoryResponseModel> GetBestStoryAsync(int storyId)
         {
             var bestStory = await _cache.GetOrCreateAsync(storyId, async cacheEntry =>
             {
                 var storyResponseModel = new StoryResponseModel();
-                var apiUrl = _configuration["HackerNews:BestStoryApi"];
+                var apiUrl = GetConfigValue("HackerNews:BestStoryApi");
                 if (string.IsNullOrWhiteSpace(apiUrl))
                 {
                     throw new ArgumentNullException($"HackerNews:BestStoryApi url is empty string: {nameof(apiUrl)}");
@@ -58,6 +62,11 @@ namespace HackerNews.Service
             });
 
             return bestStory ?? new StoryResponseModel();
+        }
+
+        public string GetConfigValue(string key)
+        {
+            return _configuration[key];
         }
     }
 }

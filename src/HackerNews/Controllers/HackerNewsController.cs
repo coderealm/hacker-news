@@ -14,7 +14,6 @@ namespace HackerNews.Controllers
         {
             _mediator = mediator;
             _storyRequestModel = storyRequestModel;
-
         }
 
         [HttpGet, Route("best-stories")]
