@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HackerNews.Http\HackerNews.Http.csproj" />
+    <ProjectReference Include="..\HackerNews.Models\HackerNews.Models.csproj" />
+    <ProjectReference Include="..\HackerNews.Service\HackerNews.Service.csproj" />
+  </ItemGroup>
+
+</Project>
